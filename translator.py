@@ -12,8 +12,8 @@ import re
 import mysql.connector
 
 '#User input (host and database are alternatively set by default)'
-user = input('Input user: ')
-password = input('Input password: ')
+user = input('Input database user: ')
+password = input('Input database password: ')
 host = input('Input IP address of the database: ')
 database = input('Input the name of the database: ')
 file_name = input('Input the name of the file to be translated: ')
@@ -44,8 +44,7 @@ text = file_input.read()
 
 '#Make list of sentences from the file'
 sentences = re.split('[.?!;$]\s+', text)
-while '' in sentences:
-    sentences.remove('')
+sentences.remove('')
 
 # t = re.sub('\n+', '\n', text)
 # sentences1 = '\n'.join(sentences)
