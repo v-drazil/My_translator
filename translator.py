@@ -44,7 +44,8 @@ text = file_input.read()
 
 '#Make list of sentences from the file'
 sentences = re.split('[.?!;$]\s+', text)
-sentences.remove('')
+while '' in sentences:
+    sentences.remove('')
 
 # t = re.sub('\n+', '\n', text)
 # sentences1 = '\n'.join(sentences)
@@ -68,13 +69,13 @@ index = 0
 for x in old_list:
     if x in text:
         text = re.sub(x, new_list[index], text)
-        index += 1
         print('"%s" have been translated' % x)
-        while x in sentences:
-            sentences.remove(x)
+    while x in sentences:
+        sentences.remove(x)
+    index += 1
 
-'# Functional option for loading data to variables directly from database'
-# for (cz, eng) in cursor:
+'# Option for loading data to variables directly from database'
+#for (cz, eng) in cursor:
 #     if language == 'eng':
 #         new = cz
 #         old = eng
