@@ -14,8 +14,8 @@ import mysql.connector
 '#User input (host and database are alternatively set by default)'
 user = input('Input database user: ')
 password = input('Input database password: ')
-host = input('Input IP address of the database: ')
-database = input('Input the name of the database: ')
+host = input('Input IP address of the database or press enter: ')
+database = input('Input the name of the database or press enter: ')
 file_name = input('Input the name of the file to be translated: ')
 language = input('Language used in the file (eng or cz): ')
 
