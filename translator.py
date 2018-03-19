@@ -73,6 +73,7 @@ for x in old_list:
     while x in sentences:
         sentences.remove(x)
     index += 1
+    text = ''
 
 '# Option for loading data to variables directly from database'
 #for (cz, eng) in cursor:
@@ -107,13 +108,13 @@ print('The number of untranslated sentences left in the file is: %s.'
 manual_trans = input('Do you wish to translate remaining sentences manually and save them to database (y/n)? ')
 
 if manual_trans == 'y':
-    distributor = input('Input name of the distributor: ')
-    producer = input('Input name of the producer: ')
+#    distributor = input('Input name of the distributor: ')
+#    producer = input('Input name of the producer: ')
     file_input_trans = open(file_name, 'r+', encoding='cp1250')
     text_trans = file_input_trans.read()
 
     for y in sentences:
-        choice = input('Do you wish to translate %s and save it to database (y/n)? ' % y)
+        choice = input('Do you wish to translate "%s" and save it to database (y/n)? ' % y)
         if choice == 'y':
             new_trans = input('Input text for translation: ')
             text_trans = re.sub(y, new_trans, text_trans)
