@@ -73,7 +73,6 @@ for x in old_list:
     while x in sentences:
         sentences.remove(x)
     index += 1
-    text = ''
 
 '# Option for loading data to variables directly from database'
 #for (cz, eng) in cursor:
