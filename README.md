@@ -1,8 +1,8 @@
 Translator.py is intended for translating texts in selected file
-from one language to another (according to the user choice) using
-customized database. I am using my own database called 'projects'.
+from one language to another language using sql or txt database.
+Language is recognised automatically according to the database.
 The second part of the program enables manual translation of remaining
-sentences in the file and updating the database. There is sql and txt file
-called "dictionary" attached. These files have been used as sample database.
-Attached Txt file called "testfile" have been used as a sample file to be translated.
-This program is still in development but now it is fully functional.
+sentences in the file and the database update. There is sql and txt file
+called "dictionary" attached. These files have been used as sample databases.
+Attached txt file called "testfile" have been used as a sample file to be translated.
+This program is still in development but it is fully functional.
