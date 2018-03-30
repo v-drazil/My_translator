@@ -87,7 +87,7 @@ class FileTranslate:
         print('The number of untranslated sentences left in the file is: {}.'.format(length))
 
     def f_manual_trans(self):
-        manual_trans = input('Do you wish to translate remaining sentences manually and save them to the database (y/n)? ')
+        manual_trans = input('Do you wish to translate and save remaining sentences manually (y/n)? ')
         if manual_trans == 'y':
             for item in self.sentences:
                 choice = input('Do you wish to translate "{}" and save it to the database (y/n)? '.format(item))
