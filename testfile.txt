@@ -1,5 +1,7 @@
 Dear customer.
-Thank you for choosing a Dini Argeo product. All rights are reserved to GAI MACCHINE IMBOTTIGLIATRICI S.p.a.
+Thank you for choosing
+
+a Dini Argeo product. All rights are reserved to GAI MACCHINE IMBOTTIGLIATRICI S.p.a.
 
 1.	Dear customer. Hello world!
 
