@@ -18,20 +18,20 @@ class FileTranslate:
     def __init__(self, cz_list, eng_list):
         self.cz_list = cz_list
         self.eng_list = eng_list
-        self.file_input = None
+        # self.file_input = None
         self.text = None
         self.sentences = []
         self.db = None
         self.cursor = None
-        self.txt_input = None
+        # self.txt_input = None
         self.language = None
 
     def f_open(self):
-        self.file_input = open(file_name, 'r', encoding='UTF-8')
-        self.text = self.file_input.read()
-        self.file_input.close()
+        with open(file_name, 'r', encoding='UTF-8') as file_input:
+            self.text = file_input.read()
+        self.text = re.sub('\s', ' ', self.text)
         self.text = re.sub(' +', ' ', self.text)
-        self.sentences = re.split('[.?!;\n]\s+|\n', self.text)
+        self.sentences = re.split('[.?!;:] ', self.text)
         for item in self.sentences:
             short = len(item)
             if short <= 4:
@@ -39,9 +39,8 @@ class FileTranslate:
         self.sentences = set(self.sentences)
 
     def txt_import(self):
-        self.txt_input = open(txt_file, 'r', encoding='UTF-8')
-        self.db = self.txt_input.read()
-        self.txt_input.close()
+        with open(txt_file, 'r', encoding='UTF-8') as txt_input:
+            self.db = txt_input.read()
         db_sentences = re.split('[;\n]', self.db)
         if '' in db_sentences:
             db_sentences.remove('')
@@ -80,13 +79,21 @@ class FileTranslate:
                 sentences.remove(item)
                 self.language = 'eng'
         self.sentences = set(sentences)
-        self.file_input = open(file_name, 'w', encoding='UTF-8')
-        self.file_input.write(self.text)
-        self.file_input.close()
-        length = len(self.sentences)
-        print('The number of untranslated sentences left in the file is: {}.'.format(length))
+
+    def f_write(self):
+        self.text = self.text.replace('. ', '.<x>')
+        self.text = self.text.replace('! ', '!<x>')
+        self.text = self.text.replace('? ', '?<x>')
+        self.text = self.text.replace('; ', ';<x>')
+        self.text = self.text.replace(': ', ':<x>')
+        text = re.split('<x>', self.text)
+        text = '\n'.join(text)
+        with open(file_name, 'w', encoding='UTF-8') as file_input:
+            print(text, file=file_input)
 
     def f_manual_trans(self):
+        length = len(self.sentences)
+        print('The number of untranslated sentences left in the file is: {}.'.format(length))
         manual_trans = input('Do you wish to translate and save remaining sentences manually (y/n)? ')
         if manual_trans == 'y':
             for item in self.sentences:
@@ -111,21 +118,22 @@ class FileTranslate:
                         if self.language == 'eng':
                             txt_ex_list.append(new_trans)
                             txt_ex_list.append(item)
-                            txt_ex = (';'.join(txt_ex_list) + '\n')
-                            self.txt_input = open(txt_file, 'a', encoding='UTF-8')
-                            self.txt_input.write(txt_ex)
-                            self.txt_input.close()
+                            txt_ex = (';'.join(txt_ex_list))
+                            with open(txt_file, 'a', encoding='UTF-8') as txt_input:
+                                print(txt_ex, file=txt_input)
                         elif self.language == 'cz':
                             txt_ex_list.append(item)
                             txt_ex_list.append(new_trans)
-                            txt_ex = (';'.join(txt_ex_list) + '\n')
-                            self.txt_input = open(txt_file, 'a', encoding='UTF-8')
-                            self.txt_input.write(txt_ex)
-                            self.txt_input.close()
+                            txt_ex = (';'.join(txt_ex_list))
+                            with open(txt_file, 'a', encoding='UTF-8') as txt_input:
+                                print(txt_ex, file=txt_input)
 
-            self.file_input = open(file_name, 'w', encoding='UTF-8')
-            self.file_input.write(self.text)
-            self.file_input.close()
+            with open(file_name, 'w', encoding='UTF-8') as file_input:
+                print(self.text, file=file_input)
+
+            if database_choice(database_file):
+                self.cursor.close()
+                self.db.close()
 
 
 def database_choice(db_choice):
@@ -182,10 +190,7 @@ else:
 final.f_open()
 final.f_translate()
 final.f_manual_trans()
-
-if database_choice(database_file):
-    self.cursor.close()
-    self.db.close()
+final.f_write()
 
 '#user can check executed changes and then terminate the program manually.'
 input('For termination press Enter.')
