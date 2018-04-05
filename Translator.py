@@ -128,9 +128,6 @@ class FileTranslate:
                             with open(txt_file, 'a', encoding='UTF-8') as txt_input:
                                 print(txt_ex, file=txt_input)
 
-            with open(file_name, 'w', encoding='UTF-8') as file_input:
-                print(self.text, file=file_input)
-
             if database_choice(database_file):
                 self.cursor.close()
                 self.db.close()
