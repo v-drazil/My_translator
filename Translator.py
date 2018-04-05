@@ -61,6 +61,9 @@ class FileTranslate:
         for (cz, eng) in self.cursor:
             self.cz_list.append(cz)
             self.eng_list.append(eng)
+        if database_choice(database_file):
+            self.cursor.close()
+            self.db.close()
 
     def f_translate(self):
         print('-------------------------')
@@ -96,6 +99,9 @@ class FileTranslate:
         print('The number of untranslated sentences left in the file is: {}.'.format(length))
         manual_trans = input('Do you wish to translate and save remaining sentences manually (y/n)? ')
         if manual_trans == 'y':
+            if database_choice(database_file):
+                self.db = mysql.connector.connect(user=user, password=password, host=host, database=database)
+                self.cursor = self.db.cursor()
             for item in self.sentences:
                 choice = input('Do you wish to translate "{}" and save it to the database (y/n)? '.format(item))
                 if choice == 'y':
