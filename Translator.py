@@ -1,15 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-"""
-This program can be used for translating texts in selected file
-from one language to another language using sql or txt database.
-Language is recognised automatically according to the database.
-Second part of the program enables manual translation of remaining
-sentences in the file and updating the database.
-"""
-
 import re
-import mysql.connector
 import argparse
 
 
@@ -61,7 +52,7 @@ class FileTranslate:
         for (cz, eng) in self.cursor:
             self.cz_list.append(cz)
             self.eng_list.append(eng)
-        if database_choice(database_file):
+        if args.database_choice:
             self.cursor.close()
             self.db.close()
 
@@ -99,7 +90,7 @@ class FileTranslate:
         print('The number of untranslated sentences left in the file is: {}.'.format(length))
         manual_trans = input('Do you wish to translate and save remaining sentences manually (y/n)? ')
         if manual_trans == 'y':
-            if database_choice(database_file):
+            if args.database_choice:
                 self.db = mysql.connector.connect(user=user, password=password, host=host, database=database)
                 self.cursor = self.db.cursor()
             for item in self.sentences:
@@ -108,7 +99,7 @@ class FileTranslate:
                     new_trans = input('Input text for translation: ')
                     self.text = re.sub(item, new_trans, self.text)
                     print('"{}" have been translated and saved.'.format(item))
-                    if database_choice(database_file):
+                    if args.database_choice:
                         ex = ''
                         data_ex = ''
                         if self.language == 'eng':
@@ -134,35 +125,56 @@ class FileTranslate:
                             with open(txt_file, 'a', encoding='UTF-8') as txt_input:
                                 print(txt_ex, file=txt_input)
 
-            if database_choice(database_file):
+            if args.database_choice:
                 self.cursor.close()
                 self.db.close()
 
 
-def database_choice(db_choice):
-    bad_choice = True
-    while bad_choice:
-        if db_choice == '1':
-            return True
-        else:
-            return False
-
+# def database_choice(db_choice):
+#     bad_choice = True
+#     while bad_choice:
+#         if db_choice == '1':
+#             return True
+#         else:
+#             return False
 
 '#End of class and function definition'
 
-parser = argparse.ArgumentParser()
-parser.parse_args()
+parser = argparse.ArgumentParser(description="""
+This program can be used for translating texts in selected file
+from one language to another language using sql or txt database.
+Language is recognised automatically according to the database.
+Second part of the program enables manual translation of remaining
+sentences in the file and updating the database.
+""")
+
+parser.add_argument('-a', action='store_true', default=False,
+                    dest='database_choice',
+                    help='Set switch to true for using sql database instead of txt database.')
+parser.add_argument('-d', action='store', default='dictionary.txt',
+                    dest='txt_file',
+                    help='Store the name of the file to be used as the txt database (default: dictionary.txt)')
+parser.add_argument('-f', action='store', default='testfile.txt',
+                    dest='file_name',
+                    help='Store the name of the file to be translated (default: testfile.txt)')
+parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+args = parser.parse_args()
+
+'#Import mysql.connector according to the argument from command line'
+if args.database_choice:
+    import mysql.connector
 
 '#Global variables'
 list_cz = []
 list_eng = []
 final = FileTranslate(list_cz, list_eng)
 
-'#User input using database_choice function'
-print('Select file format to be used as database for translation.')
-database_file = input('For SQL please press "1", for TXT please press random key or enter: ')
+# '#User input using database_choice function'
+# print('Select file format to be used as database for translation.')
+# database_file = input('For SQL please press "1", for TXT please press random key or enter: ')
 
-if database_choice(database_file):
+if args.database_choice:
     user = input('Input database user: ')
     password = input('Input database password: ')
     host = input('Input IP address of the database or press enter: ')
@@ -173,19 +185,16 @@ if database_choice(database_file):
         host = default_host
     if not database:
         database = default_database
-    file_name = input('Input the name of the file to be translated: ')
+    file_name = args.file_name
+    # file_name = input('Input the name of the file to be translated: ')
 
     '#sql database import using function from the Class'
     final.sql_import()
 else:
-    txt_file = input('Input the name of the file to be used as the database or press enter: ')
-    file_name = input('Input the name of the file to be translated or press enter: ')
-    default_txt_file = 'dictionary.txt'
-    default_file_name = 'testfile.txt'
-    if not txt_file:
-        txt_file = default_txt_file
-    if not file_name:
-        file_name = default_file_name
+    # txt_file = input('Input the name of the file to be used as the database or press enter: ')
+    # file_name = input('Input the name of the file to be translated or press enter: ')
+    txt_file = args.txt_file
+    file_name = args.file_name
     '#txt database import using function from the Class'
     final.txt_import()
 
