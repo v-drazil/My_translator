@@ -195,12 +195,6 @@ else:
     # file_name = input('Input the name of the file to be translated or press enter: ')
     txt_file = args.txt_file
     file_name = args.file_name
-    default_txt_file = 'dictionary.txt'
-    default_file_name = 'testfile.txt'
-    if not txt_file:
-        txt_file = default_txt_file
-    if not file_name:
-        file_name = default_file_name
     '#txt database import using function from the Class'
     final.txt_import()
 
