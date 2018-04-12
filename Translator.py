@@ -9,13 +9,10 @@ class FileTranslate:
     def __init__(self, cz_list, eng_list):
         self.cz_list = cz_list
         self.eng_list = eng_list
-        # self.file_input = None
         self.text = None
         self.sentences = []
         self.db = None
         self.cursor = None
-        # self.txt_input = None
-        self.language = None
 
     def f_open(self):
         with open(file_name, 'r', encoding='UTF-8') as file_input:
@@ -60,18 +57,18 @@ class FileTranslate:
         print('-------------------------')
         sentences = list(self.sentences)
         for item in self.sentences:
-            if item in self.cz_list:
-                position = self.cz_list.index(item)
-                self.text = re.sub(item, self.eng_list[position], self.text)
-                print('"{}" have been translated'.format(item))
-                sentences.remove(item)
-                self.language = 'cz'
-            elif item in self.eng_list:
-                position = self.eng_list.index(item)
-                self.text = re.sub(item, self.cz_list[position], self.text)
-                print('"{}" have been translated'.format(item))
-                sentences.remove(item)
-                self.language = 'eng'
+            if args.language_choice:
+                if item in self.cz_list:
+                    position = self.cz_list.index(item)
+                    self.text = re.sub(item, self.eng_list[position], self.text)
+                    print('translated: "{}"'.format(item))
+                    sentences.remove(item)
+            else:
+                if item in self.eng_list:
+                    position = self.eng_list.index(item)
+                    self.text = re.sub(item, self.cz_list[position], self.text)
+                    print('translated: "{}"'.format(item))
+                    sentences.remove(item)
         self.sentences = set(sentences)
 
     def f_write(self):
@@ -98,29 +95,27 @@ class FileTranslate:
                 if choice == 'y':
                     new_trans = input('Input text for translation: ')
                     self.text = re.sub(item, new_trans, self.text)
-                    print('"{}" have been translated and saved.'.format(item))
+                    print('Translated and saved: "{}"'.format(item))
                     if args.database_choice:
-                        ex = ''
-                        data_ex = ''
-                        if self.language == 'eng':
-                            ex = "INSERT INTO dictionary (cz, eng) VALUES (%s, %s)"
-                            data_ex = (new_trans, item)
-                        elif self.language == 'cz':
+                        if args.language_choice:
                             ex = "INSERT INTO dictionary (cz, eng) VALUES (%s, %s)"
                             data_ex = (item, new_trans)
+                        else:
+                            ex = "INSERT INTO dictionary (cz, eng) VALUES (%s, %s)"
+                            data_ex = (new_trans, item)
                         self.cursor.execute(ex, data_ex)
                         self.db.commit()
                     else:
                         txt_ex_list = []
-                        if self.language == 'eng':
-                            txt_ex_list.append(new_trans)
+                        if args.language_choice:
                             txt_ex_list.append(item)
+                            txt_ex_list.append(new_trans)
                             txt_ex = (';'.join(txt_ex_list))
                             with open(txt_file, 'a', encoding='UTF-8') as txt_input:
                                 print(txt_ex, file=txt_input)
-                        elif self.language == 'cz':
-                            txt_ex_list.append(item)
+                        else:
                             txt_ex_list.append(new_trans)
+                            txt_ex_list.append(item)
                             txt_ex = (';'.join(txt_ex_list))
                             with open(txt_file, 'a', encoding='UTF-8') as txt_input:
                                 print(txt_ex, file=txt_input)
@@ -130,20 +125,13 @@ class FileTranslate:
                 self.db.close()
 
 
-# def database_choice(db_choice):
-#     bad_choice = True
-#     while bad_choice:
-#         if db_choice == '1':
-#             return True
-#         else:
-#             return False
-
 '#End of class and function definition'
 
 parser = argparse.ArgumentParser(description="""
 This program can be used for translating texts in selected file
 from one language to another language using sql or txt database.
-Language is recognised automatically according to the database.
+Database file, file designated for translation and its language are
+pre-set, but user can change default setting by following arguments.
 Second part of the program enables manual translation of remaining
 sentences in the file and updating the database.
 """)
@@ -151,13 +139,17 @@ sentences in the file and updating the database.
 parser.add_argument('-a', action='store_true', default=False,
                     dest='database_choice',
                     help='Set switch to true for using sql database instead of txt database.')
+parser.add_argument('-b', action='store_true', default=False,
+                    dest='language_choice',
+                    help='Set switch to true for translating of sentences from czech to english language'
+                    '(default: translating of sentences from english to czech language.')
 parser.add_argument('-d', action='store', default='dictionary.txt',
                     dest='txt_file',
-                    help='Store the name of the file to be used as the txt database (default: dictionary.txt)')
+                    help='Store the name of the file to be used as the txt database (default: dictionary.txt).')
 parser.add_argument('-f', action='store', default='testfile.txt',
                     dest='file_name',
-                    help='Store the name of the file to be translated (default: testfile.txt)')
-parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+                    help='Store the name of the file to be translated (default: testfile.txt).')
+parser.add_argument('--version', action='version', version='%(prog)s 1.10')
 
 args = parser.parse_args()
 
@@ -170,9 +162,6 @@ list_cz = []
 list_eng = []
 final = FileTranslate(list_cz, list_eng)
 
-# '#User input using database_choice function'
-# print('Select file format to be used as database for translation.')
-# database_file = input('For SQL please press "1", for TXT please press random key or enter: ')
 
 if args.database_choice:
     user = input('Input database user: ')
@@ -186,13 +175,10 @@ if args.database_choice:
     if not database:
         database = default_database
     file_name = args.file_name
-    # file_name = input('Input the name of the file to be translated: ')
 
     '#sql database import using function from the Class'
     final.sql_import()
 else:
-    # txt_file = input('Input the name of the file to be used as the database or press enter: ')
-    # file_name = input('Input the name of the file to be translated or press enter: ')
     txt_file = args.txt_file
     file_name = args.file_name
     '#txt database import using function from the Class'
@@ -203,6 +189,3 @@ final.f_open()
 final.f_translate()
 final.f_manual_trans()
 final.f_write()
-
-'#user can check executed changes and then terminate the program manually.'
-input('For termination press Enter.')
